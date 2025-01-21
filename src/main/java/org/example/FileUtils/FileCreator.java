@@ -16,8 +16,6 @@ public class FileCreator {
         try {
             if(file.createNewFile() && fileDigitsWriter.insertDigits()){
                 System.out.println("File has been created and is ready for use!");
-            } else {
-                System.out.println("File creation has been failed. Try again.");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
