@@ -1,20 +1,21 @@
 package org.example;
 
-import org.example.FactorialThread.FactorialThread;
+import org.example.FactorialThreadPool.FactorialThreadPool;
 import org.example.FileUtils.FileCreator;
 
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         List<Integer> integers = FileCreator.createFile();
+        BlockingQueue<Integer> blockingQueue = new LinkedBlockingQueue<>(integers);
 
-        for (int number : integers) {
-            FactorialThread thread = new FactorialThread(number);
-            thread.start();
-        }
+        FactorialThreadPool factorialThreadPool = new FactorialThreadPool(blockingQueue);
+        factorialThreadPool.start();
 
 
-        // FileCreator.deleteFile();
+        FileCreator.deleteFile();
     }
 }
