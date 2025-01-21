@@ -1,11 +1,14 @@
 package org.example.FactorialThreadPool;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class FactorialThreadPool {
     private static final int POOL_CAP = 10;
     private final BlockingQueue<Integer> integerQueue;
+    private final List<FactorialThread> threads = new ArrayList<>();
 
     public FactorialThreadPool(BlockingQueue<Integer> integersFromFile) throws InterruptedException {
         this.integerQueue = integersFromFile;
@@ -14,17 +17,13 @@ public class FactorialThreadPool {
     public void start() {
         for (int i = 0; i < POOL_CAP; i++) {
             FactorialThread factorialThread = new FactorialThread();
+            threads.add(factorialThread);
             factorialThread.start();
         }
     }
 
     public Integer takeInteger() {
-        try {
-            return integerQueue.take();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
-        }
+        return integerQueue.poll();
     }
 
     private class FactorialThread extends Thread {
@@ -33,9 +32,11 @@ public class FactorialThreadPool {
         public void run() {
             while (true) {
                 Integer number = takeInteger();
-                if (number == null) {
+
+                if(number == null){
                     break;
                 }
+
                 System.out.println("Digit: " + number + ", Factorial : " + calculateFactorial(number));
                 System.out.println(Thread.currentThread());
             }
