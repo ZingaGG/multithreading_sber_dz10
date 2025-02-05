@@ -45,7 +45,6 @@ public class FactorialThreadPool {
                     }
 
                     System.out.println("Digit: " + number + ", Factorial: " + calculateFactorial(number));
-                    System.out.println(Thread.currentThread());
                 } catch (InterruptedException e) {
                     if (isShutdown) {
                         break;
