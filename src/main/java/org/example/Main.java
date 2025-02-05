@@ -16,6 +16,7 @@ public class Main {
         factorialThreadPool.start();
 
 
+        factorialThreadPool.shutdown();
         FileCreator.deleteFile();
     }
 }

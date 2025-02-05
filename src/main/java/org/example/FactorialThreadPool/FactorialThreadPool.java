@@ -1,16 +1,16 @@
 package org.example.FactorialThreadPool;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FactorialThreadPool {
     private static final int POOL_CAP = 10;
     private final BlockingQueue<Integer> integerQueue;
-    private final List<FactorialThread> threads = new ArrayList<>();
+    private final CopyOnWriteArrayList<FactorialThread> threads = new CopyOnWriteArrayList<>();
+    private volatile boolean isShutdown = false;
 
-    public FactorialThreadPool(BlockingQueue<Integer> integersFromFile) throws InterruptedException {
+    public FactorialThreadPool(BlockingQueue<Integer> integersFromFile) {
         this.integerQueue = integersFromFile;
     }
 
@@ -22,23 +22,36 @@ public class FactorialThreadPool {
         }
     }
 
-    public Integer takeInteger() {
-        return integerQueue.poll();
+    public void shutdown() {
+        isShutdown = true;
+
+        for (FactorialThread thread : threads) {
+            thread.interrupt();
+        }
+
+        threads.clear();
+
     }
 
     private class FactorialThread extends Thread {
-
         @Override
         public void run() {
-            while (true) {
-                Integer number = takeInteger();
+            while (!isShutdown) {
+                try {
+                    Integer number = integerQueue.take();
 
-                if(number == null){
-                    break;
+                    if (isShutdown) {
+                        break;
+                    }
+
+                    System.out.println("Digit: " + number + ", Factorial: " + calculateFactorial(number));
+                    System.out.println(Thread.currentThread());
+                } catch (InterruptedException e) {
+                    if (isShutdown) {
+                        break;
+                    }
+                    Thread.currentThread().interrupt();
                 }
-
-                System.out.println("Digit: " + number + ", Factorial : " + calculateFactorial(number));
-                System.out.println(Thread.currentThread());
             }
         }
 
